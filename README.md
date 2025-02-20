@@ -1,4 +1,4 @@
-# Age Classification using ONNX
+# Age Classification ( ONNX model)
 
 ## Overview
 This repository contains an implementation of an age classification model using ONNX. The model is deployed as an ONNX server integrated with the RescueBox application to predict age categories (child or adult) based on images.
