@@ -41,6 +41,10 @@ python server.py --port 5000
 By default, the server runs on port `5000`. You can change the port using the `--port` argument.
 
 
+### Exporting the Model to ONNX
+
+The pretrained model was exported from PyTorch to ONNX format by first loading the model and creating a dummy input tensor. Then, the model was exported using `torch.onnx.export()` with appropriate settings for export parameters and input/output names. After exporting, the ONNX model was validated using the `onnx.checker.check_model()` function to ensure it was correct and ready for use.
+
 
 ## Preprocessing & Postprocessing
 
