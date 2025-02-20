@@ -12,7 +12,7 @@ from flask_ml.flask_ml_server.models import (
     ResponseBody,
     TaskSchema,
 )
-from onnx_helper import ONNXModelHelper
+from onnx_helper import ONNXModelHelper  # Import the ONNX helper
 import torch
 
 warnings.filterwarnings("ignore")
@@ -48,44 +48,47 @@ server = MLServer(__name__)
 
 server.add_app_metadata(
     name="Age Classification",
-    author="Ashwini Ramesh Kumar",
+    author="Umass Rescue",
     version="0.1.0",
     info=load_file_as_string("img-app-info.md"),
 )
 
-# Initialize the model helper
+# Initialize the ONNX model helper
 model_helper = ONNXModelHelper(model_path="model.onnx")
 
 
 @server.route("/predict", task_schema_func=create_transform_case_task_schema)
 def give_prediction(inputs: Inputs, parameters: Parameters) -> ResponseBody:
-    input_path = inputs["input_dataset"].path
-    out = Path(inputs["output_file"].path)
-    out = str(out / (f"predictions_" + str(int(torch.rand(1) * 1000)) + ".csv"))
+    input_path = inputs["input_dataset"].path  # Input directory path
+    output_dir = Path(inputs["output_file"].path)  # Output directory
+    output_file = str(output_dir / f"predictions_{int(torch.rand(1) * 1000)}.csv")
+
     print(parameters)
 
-    # Get predictions from the model helper
-    res_list = model_helper.predict_dir(input_path)
-    
+    # Get predictions for all images in the directory
+    image_paths = model_helper.find_images_in_dir(input_path)
+    predictions = [model_helper.predict(img_path) for img_path in image_paths]
+
     # Write results to CSV file
-    with open(out, mode="w", newline="") as file:
+    with open(output_file, mode="w", newline="") as file:
         writer = csv.DictWriter(
             file, fieldnames=["image_path", "prediction", "confidence"]
         )
         writer.writeheader()  # Write header row
-        for res in res_list:
-            writer.writerow({"image_path": res["image_path"], "prediction": res["prediction"], "confidence": res["confidence"]})
+        for img_path, pred in zip(image_paths, predictions):
+            writer.writerow({
+                "image_path": img_path,
+                "prediction": pred["prediction"],  # "child" or "adult"
+                "confidence": pred["confidence"]
+            })
 
-    return ResponseBody(FileResponse(path=out, file_type="csv"))
+    return ResponseBody(FileResponse(path=output_file, file_type="csv"))
 
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Run a server.")
-    parser.add_argument(
-        "--port", type=int, help="Port number to run the server", default=5000
-    )
+    parser.add_argument("--port", type=int, help="Port number to run the server", default=5000)
     args = parser.parse_args()
-    print(
-        "CUDA is available." if torch.cuda.is_available() else "CUDA is not available."
-    )
+
+    print("CUDA is available." if torch.cuda.is_available() else "CUDA is not available.")
     server.run(port=args.port)
