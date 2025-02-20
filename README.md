@@ -1,5 +1,8 @@
 # Age Classification ( ONNX model)
 
+The pretrained model used in this project was taken from the [UMass Rescue Age Classification repository](https://github.com/UMass-Rescue/age_classification).
+
+
 ## Overview
 This repository contains an implementation of an age classification model using ONNX. The model is deployed as an ONNX server integrated with the RescueBox application to predict age categories (child or adult) based on images.
 
