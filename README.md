@@ -4,7 +4,7 @@ The pretrained model used in this project was taken from the [UMass Rescue Age C
 
 
 ## Overview
-This repository contains an implementation of an age - gender classification model using ONNX. The model is deployed as an ONNX server integrated with the RescueBox application to predict age categories (child or adult) based on images.
+This repository contains an implementation of an age - gender classification model using ONNX. The model is deployed as an ONNX server integrated with the RescueBox application to detect portions of an image and draw bounding boxes over it ( which can later be used for gender/age prediction).
 
 ---
 
