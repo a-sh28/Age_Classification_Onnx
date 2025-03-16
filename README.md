@@ -4,7 +4,7 @@ The pretrained model used in this project was taken from the [UMass Rescue Age C
 
 
 ## Overview
-This repository contains an implementation of an age classification model using ONNX. The model is deployed as an ONNX server integrated with the RescueBox application to predict age categories (child or adult) based on images.
+This repository contains an implementation of an age - gender classification model using ONNX. The model is deployed as an ONNX server integrated with the RescueBox application to predict age categories (child or adult) based on images.
 
 ---
 
@@ -35,7 +35,7 @@ To start the ONNX server, follow these steps:
 2. Run the following command:
 
 ```bash
-python server.py --port 5000
+python onnx_server.py --port 5000
 ```
 
 By default, the server runs on port `5000`. You can change the port using the `--port` argument.
@@ -50,14 +50,14 @@ The pretrained model was exported from PyTorch to ONNX format by first loading t
 
 ### Preprocessing Steps:
 1. Load the image and convert it to RGB.
-2. Resize the image to `224x224` pixels.
+2. Resize the image to `640x640` pixels.
 3. Apply center cropping and normalize the tensor.
-4. Convert to ONNX input format (numpy array of shape `(1, 3, 224, 224)`).
+4. Convert to ONNX input format (numpy array of shape `(1, 3, 640, 640)`).
 
 ### Postprocessing Steps:
 1. Decode the model output.
-2. Convert the age prediction to categorical labels (`child` or `adult`).
-3. Return the final classification result with confidence scores.
+2. Convert the detections of bounding boxes, confidence and class_ids from raw format into csv.
+3. Return the detections as a csv file.
 
 ---
 
