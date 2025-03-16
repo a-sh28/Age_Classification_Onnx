@@ -8,7 +8,8 @@ import torch
 
 
 class ONNXHelper:
-    def __init__(self, model_path, resolution=224):
+
+    def __init__(self, model_path, resolution=640):
         self.resolution = resolution
         self.model_path = model_path
         self.valid_extensions = (".jpg", ".jpeg", ".png")
@@ -40,16 +41,33 @@ class ONNXHelper:
     def preprocess_single(self, image_path):
         return self.apply_transforms_on_path(image_path)
 
-    def decode_prediction(self, age_prediction):
-        age = age_prediction.item()  # Convert tensor output to a scalar
-        label = "child" if age <= 22 else "adult"
-        return {"predicted_age": age, "label": label}
+    def decode_prediction(self, output):
+        output = output.squeeze(0)
+        x_center,y_center,width,height,confidence,class_ids = output
+        mask = confidence > 0.6
+        x_center = x_center[mask]
+        y_center = y_center[mask]
+        width = width[mask]
+        height = height[mask]
+        confidence = confidence[mask]
+        class_ids = class_ids[mask]
+        x1 = x_center - width/2
+        x2 = x_center + width/2
+        y1= y_center - height/2
+        y2 = y_center + height/2
+        class_ids = [int(class_id) for class_id in class_ids]
+        detection_boxes = []
+        for i in range(len(x1)):
+            detection_boxes.append({"bounding_box":[x1[i],x2[i],y1[i],y2[i]],"confidence":confidence[i],"class_ids":class_ids[i]})
+        return detection_boxes
+
 
     def postprocess(self, outputs):
         return [self.postprocess_single(out) for out in outputs]
 
     def postprocess_single(self, output):
-        return self.decode_prediction(output[0][0])
+        return self.decode_prediction(output)
+
 
     def predict(self, image_path):
         input_data = self.preprocess_single(image_path)
