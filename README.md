@@ -19,7 +19,7 @@ cd age_classification
 ---
 
 ## Setup and Install Dependencies
-Ensure you have Python installed (preferably Python 3.8+). Then install the required dependencies:
+Ensure you have Python installed (Python 3.10+ for flask_ML). Then install the required dependencies:
 
 ```bash
 pip install -r requirements.txt
