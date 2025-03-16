@@ -5,3 +5,4 @@ yt_dlp
 lapx>=0.5.2
 opencv-python
 flask-ml
+onnxruntime
