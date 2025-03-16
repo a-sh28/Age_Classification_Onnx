@@ -12,7 +12,8 @@ from flask_ml.flask_ml_server.models import (
     ResponseBody,
     TaskSchema,
 )
-from onnx_helper import ONNXModelHelper  # Import the ONNX helper
+
+from onnx_helper import ONNXHelper  # Import the ONNX helper
 import torch
 
 warnings.filterwarnings("ignore")
@@ -54,36 +55,31 @@ server.add_app_metadata(
 )
 
 # Initialize the ONNX model helper
-model_helper = ONNXModelHelper(model_path="model.onnx")
 
+model_helper = ONNXHelper(model_path="/Users/aravind/Desktop/age_classification/model.onnx")
 
 @server.route("/predict", task_schema_func=create_transform_case_task_schema)
 def give_prediction(inputs: Inputs, parameters: Parameters) -> ResponseBody:
     input_path = inputs["input_dataset"].path  # Input directory path
     output_dir = Path(inputs["output_file"].path)  # Output directory
-    output_file = str(output_dir / f"predictions_{int(torch.rand(1) * 1000)}.csv")
-
+    output_dir.mkdir(parents=True, exist_ok=True)
+    csv_file = output_dir/"detections.csv"
     print(parameters)
 
-    # Get predictions for all images in the directory
     image_paths = model_helper.find_images_in_dir(input_path)
-    predictions = [model_helper.predict(img_path) for img_path in image_paths]
-
-    # Write results to CSV file
-    with open(output_file, mode="w", newline="") as file:
-        writer = csv.DictWriter(
-            file, fieldnames=["image_path", "prediction", "confidence"]
-        )
-        writer.writeheader()  # Write header row
-        for img_path, pred in zip(image_paths, predictions):
-            writer.writerow({
-                "image_path": img_path,
-                "prediction": pred["prediction"],  # "child" or "adult"
-                "confidence": pred["confidence"]
-            })
-
-    return ResponseBody(FileResponse(path=output_file, file_type="csv"))
-
+    saved_images = []
+    for idx, img_path in enumerate(image_paths):
+        saved_images.append(model_helper.predict(img_path))
+    
+    with open(csv_file, mode ="w+", newline= "") as f:
+        writer = csv.writer(f)
+        for i, result in enumerate(saved_images):
+            writer.writerow(["Image_{}".format(i+1)])
+            writer.writerow(["Bounding Box", "Confidence" , "Class_ID"])
+            for j in result:
+                writer.writerow([j["bounding_box"],j["confidence"],j["class_ids"]])
+            writer.writerow([])
+    return FileResponse(file_type="csv", path=str(csv_file))
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Run a server.")
