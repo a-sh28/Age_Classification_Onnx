@@ -12,8 +12,8 @@ This repository contains an implementation of an age - gender classification mod
 To get started, clone the repository:
 
 ```bash
-git clone https://github.com/UMass-Rescue/age_classification.git
-cd age_classification
+git clone https://github.com/a-sh28/Age_Classification_Onnx.git
+cd Age_Classification_Onnx
 ```
 
 ---
