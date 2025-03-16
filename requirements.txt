@@ -6,3 +6,4 @@ lapx>=0.5.2
 opencv-python
 flask-ml
 onnxruntime
+numpy==1.22.2
