@@ -56,7 +56,7 @@ server.add_app_metadata(
 
 # Initialize the ONNX model helper
 
-model_helper = ONNXHelper(model_path="/Users/aravind/Desktop/age_classification/model.onnx")
+model_helper = ONNXHelper(model_path="model.onnx")
 
 @server.route("/predict", task_schema_func=create_transform_case_task_schema)
 def give_prediction(inputs: Inputs, parameters: Parameters) -> ResponseBody:
